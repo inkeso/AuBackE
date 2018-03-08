@@ -2,9 +2,9 @@
 
 # Build AuBackE RAM-disk (aubacore.gz)
 
-
+# !!!!
 # Argh, this needs a thorough rework. It is OLD.
-
+# !!!!
 
 # include and load terminus-font (smaller than default).
 # You can use your favorite font here. just be shure to place it in the
