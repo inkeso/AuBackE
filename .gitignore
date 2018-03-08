@@ -1,0 +1,6 @@
+*.pyc
+tmp
+BUILD
+release
+external
+tcz
