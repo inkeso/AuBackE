@@ -64,24 +64,24 @@ as you want as much output as possible visible on the screen.
 
 ### For extlinux
 
-- Install the MBR to the external drive (in doku/boot/syslinux):
+- Install the MBR to the external drive:
   `./extlinux -i /mnt/ext3partition`
   `./syslinux -d . -i /dev/sdc1`
 - Set the partition to active / bootable
-- create extlinux.conf::
-
+- create extlinux.conf:
+```
     DEFAULT aubacke
     LABEL aubacke
       KERNEL /aubacke/vmlinuz
       APPEND initrd=/aubacke/aubacore.gz loglevel=3 noswap norestore multivt kmap=qwertz/de-latin1 loop.max_loop=256 vga=791
-
+```
 ### For GRUB
 
 - `grub-install --root-directory=/mnt/usb/stick /dev/sdc`
 - you probably have to copy some grub-files and edit the device.map
 - Set the partition to active / bootable
-- create menu.lst::
-
+- create menu.lst:
+```
     hiddenmenu
     timeout   0
     default   0
@@ -89,23 +89,23 @@ as you want as much output as possible visible on the screen.
     root (hd0,1)
     kernel /boot/vmlinuz loglevel=3 noswap norestore multivt kmap=qwertz/de-latin1 loop.max_loop=256 vga=791
     initrd /boot/aubacore.gz
-
+```
 ### For UEFI
 
 - create GPT partition table, 2 Partitions: ~50MB VFAT and the rest as whatever 
-  you like. Don't need ESP. install grub::
-
+  you like. Don't need ESP. install grub:
+```
     mount /dev/sdh1 /mnt
     mkdir /mnt/boot
     mkdir /mnt/efi
     grub-install --target x86_64-efi --efi-directory /mnt/efi/ --removable --boot-directory=/mnt/boot
     cp -t /mnt/boot aubacore.gz vmlinuz
-
-- Edit /boot/grub/grub.cfg::
-
+```
+- Edit `/boot/grub/grub.cfg`:
+```
     linux /boot/vmlinuz loglevel=3 noswap norestore multivt kmap=qwertz/de-latin1 loop.max_loop=256 vga=791
     initrd /boot/aubacore.gz
-    
+```
 
 ### TinyCore Sheetcodes
 
@@ -113,8 +113,7 @@ Of course, you should modify the kernel-options to your liking, see
 [TC-FAQ](http://www.tinycorelinux.net/faq.html#bootcodes)
 
 
-Bugs
-====
+# Bugs
 
 If no storage-devices are present the script behaves quite bitchy, but 
 it also is completely useless without any storage-device. So I won't
@@ -127,8 +126,7 @@ Veracrypt doesn't work. (Binary won't execute in TC. Why?)
 
 Btrfs should be work in tinycore, but doesn't mount in current version (11.x)
 
-ToDo
-====
+# ToDo
 
  - Internationalization 
  - Possibility to change ProfileStore on runtime
