@@ -5,44 +5,41 @@
 Ingredients
 ===========
 
-*Base:* `TinyCore Linux <http://www.tinycorelinux.net>`_
+*See build.sh* 
 
-- `core.gz <http://repo.tinycorelinux.net/4.x/x86/release/distribution_files/core.gz>`_
-- `vmlinuz <http://repo.tinycorelinux.net/4.x/x86/release/distribution_files/vmlinuz>`_
+*Base:* `TinyCore Linux <http://www.tinycorelinux.net>`
 
-There is also a x64-Version, but i didn't test it. x86 is sufficient for what we
-want to do.
+build.sh includes option for 32 or 64 bit.
 
-*Additional TCZ-Packages (place in tcz-dir):*
+*Additional TCZ-Packages (placed in tcz-dir):*
 
 - kmaps        (for supporting other then US-keyboards)
 - rsync, popt  (actual backup is done using this)
 - python       (for AuBackE frontend)
-- 
 - parted       (detecting partitiontypes and -labels)
-
-*Furthermore (optional):*
-
 - filesystems      (for additional filesystem support like xfs, reiserfs, jfs etc.)
 - ntfs-3g          (for supporting NTFS-partitions)
-- truecrypt, fuse, lvm2, liblvm2, libdevmapper, udev-lib, raid-dm-$KERNEL-tinycore
-                   (support for encrypted volumes. probably containers)
 - setfont          (if you don't want the default terminal font.)
 - `terminus-font <http://terminus-font.sourceforge.net>`_, or any other font. Place
   it in external-dir
 - readline, ncurses, ncurses-common, ncurses-terminfo
                    (readline-support in AuBackE for a better input-experience)
-- you can also include any TCZ you want but be shure to resolve dependencies.
+- you can also include any other TCZ you want... dependencies are resolved by
+  build-skript
 
 *Actual sources are:*
 
 - ~/.ashrc (invoking AuBackE on first login, created in build.sh)
 - aubacke.py (the program itself)
 
-*For building the initial ramdisk you need:*
+*For building initial ramdisk you need:*
 
 - cpio (for extracting the TC-ramdisk)
 - 7z (for a tighter recompression, optional)
+
+For using veracrypt, place matching cli-binary in external/$ARCH.
+(Well, that was working with truecrypt, but veracrypt doesn't execute in TC. 
+I don't know why. So... no veracrypt at the moment.
 
 
 Building
@@ -52,8 +49,7 @@ Create ramdisk
 --------------
 
 For building the modified tinycore-image, edit & execute build.sh
-(you probably have to do this as root, because of cpio)
-If you have 7z you can ``./build.sh release`` which will recompress the
+If you have 7z you can `./build.sh release` which will recompress the
 ramdisk, squeezing out a few bytes
 
 A BUILD-dir containing all needed files is created:
@@ -67,7 +63,7 @@ You can copy them to a partition on you external drive and install a
 bootloader. For example sys-/extlinux or grub.
 
 In the examples below, the framebuffer is set to 1024x768 which is fine
-for the default-font. Something loer like 800x600 will also work (I 
+for the default-font. Something lower like 800x600 will also work (I 
 tried to limit the output to about 100 columns). But if you don't intend
 to use this script on computers with very, very old low-res screen, I 
 recomment using at least 1024x768 and/or a smaller font (see build.sh)
@@ -102,6 +98,24 @@ For GRUB
     root (hd0,1)
     kernel /boot/vmlinuz loglevel=3 noswap norestore multivt kmap=qwertz/de-latin1 loop.max_loop=256 vga=791
     initrd /boot/aubacore.gz
+
+For UEFI
+''''''''
+
+- create GPT partition table, 2 Partitions: ~50MB VFAT and the rest as whatever 
+  you like. Don't need ESP. install grub::
+
+    mount /dev/sdh1 /mnt
+    mkdir /mnt/boot
+    mkdir /mnt/efi
+    grub-install --target x86_64-efi --efi-directory /mnt/efi/ --removable --boot-directory=/mnt/boot
+    cp -t /mnt/boot aubacore.gz vmlinuz
+
+- Edit /boot/grub/grub.cfg::
+
+    linux /boot/vmlinuz loglevel=3 noswap norestore multivt kmap=qwertz/de-latin1 loop.max_loop=256 vga=791
+    initrd /boot/aubacore.gz
+    
 
 TinyCore Sheetcodes
 '''''''''''''''''''

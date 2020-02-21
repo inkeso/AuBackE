@@ -165,7 +165,7 @@ class Device():
             if len(tok) > 2 and self.dev == tok[0]: 
                 self.mount = tok[2]
                 return True
-            # check by mountpoint (in case of truecrypt, device is a loopback)
+            # check by mountpoint (in case of veracrypt, device is a loopback)
             if len(tok) > 2 and self.mount == tok[2]: 
                 return True
         return False
@@ -179,10 +179,10 @@ class Device():
             return True
         if not os.path.exists(self.mount): os.makedirs(self.mount)
         
-        # In case of truecrypt, we don't use the normal mountcommand
-        if self.fstype=="truecrypt":
-            tca = vinput ("Additional truecrypt-arguments (like --filesystem=ntfs-3g for encrypted NTFS-partitions):",None)
-            mc = "truecrypt -m=nokernelcrypto "+tca+" "+self.dev+" "+self.mount
+        # In case of veracrypt, we don't use the normal mountcommand
+        if self.fstype=="veracrypt":
+            tca = vinput ("Additional veracrypt-arguments (like --filesystem=ntfs-3g for encrypted NTFS-partitions):",None)
+            mc = "veracrypt -m=nokernelcrypto "+tca+" "+self.dev+" "+self.mount
             return os.system(mc) == 0
         
         mountcmd = ["mount"]
@@ -203,8 +203,8 @@ class Device():
     def doUnmount(self):
         if self.isMounted():
             cp("$ unmount " + self.dev + "\n", "1;30")
-            if self.fstype == "truecrypt":
-                targ = cmd(["truecrypt", "-d", self.dev])
+            if self.fstype == "veracrypt":
+                targ = cmd(["veracrypt", "-d", self.dev])
             else:
                 targ = cmd(["umount", self.dev])
             if len(targ.strip()) > 0:
@@ -301,7 +301,7 @@ class Storage():
                 self.devs[dev] = newd
                 self.uuids[self.devs[dev].uuid] = newd
         
-        ptv = [] # aggregate Possible Truecrypt Volumes
+        ptv = [] # aggregate Possible veracrypt Volumes
         current = ""
         # sometimes parted needs interaction. so we execute it (in autostart) 
         # before launching this script and write the output to a file (and stdout)
@@ -322,7 +322,7 @@ class Storage():
                     hdtmp[current]['PARTITIONS'].append(self.devs[current + t[0]])
                 else:
                     # partitions without a known FS (not listed by blkid)
-                    # may be truecrypt-volumes, but omit extended partition
+                    # may be veracrypt-volumes, but omit extended partition
                     if not "PTTYPE" in cmd("blkid -p -s PTTYPE "+current+t[0]):
                         ptv.append({'DEV': current+t[0], 'START': t[1], 'SIZE':t[3]})
         parted_output.close()
@@ -330,13 +330,13 @@ class Storage():
         for (k,v) in hdtmp.items(): 
             if len(v['PARTITIONS']) > 0: self.hd[k] = v
 
-        # if truecrypt is available, ask for truecrypt-devices
-        if os.path.exists("/usr/bin/truecrypt"):
+        # if veracrypt is available, ask for veracrypt-devices
+        if os.path.exists("/usr/bin/veracrypt"):
             cp("\n")
-            heading("Truecrypt available. You may now mount your encrypted volumes.")
+            heading("veracrypt available. You may now mount your encrypted volumes.")
             self.show()
             # if there are unmounted & unknown partitions left, show them
-            if ptv: cp("◆ Unknown (possibly truecrypt) partitions:\n","1;33")
+            if ptv: cp("◆ Unknown (possibly veracrypt) partitions:\n","1;33")
             for d in ptv: 
                 cp(d['DEV'],"36")
                 cp(" starting at ")
@@ -344,18 +344,18 @@ class Storage():
                 cp(" and is ")
                 cp(d['SIZE'], "1")
                 cp(" long.\n")
-            # ask for truecrypt mount
+            # ask for veracrypt mount
             while True:
-                tcdev = vinput("\nMount truecrypt-device or -file (full path; Enter to cancel)", None)
+                tcdev = vinput("\nMount veracrypt-device or -file (full path; Enter to cancel)", None)
                 if tcdev == "": break
                 tcmnt = vinput("Label or name", None)
-                newd = Device(tcdev, tcmnt, "truecrypt-"+tcmnt, "truecrypt")
+                newd = Device(tcdev, tcmnt, "veracrypt-"+tcmnt, "veracrypt")
                 if newd.isMounted():
                     self.devs[newd.dev] = newd
                     self.uuids[newd.uuid] = newd
                     if not "Other" in self.hd.keys():
-                        self.hd['TrueCrypt'] = { 'SIZE': "mounted", 'MODEL': "", 'PARTITIONS': [] }
-                    self.hd['TrueCrypt']['PARTITIONS'].append(newd)
+                        self.hd['veracrypt'] = { 'SIZE': "mounted", 'MODEL': "", 'PARTITIONS': [] }
+                    self.hd['veracrypt']['PARTITIONS'].append(newd)
                     cp("◆ OK ", "1;30"); cp(tcdev, "36"); cp(" ══▶ "); cp(tcmnt, "36");
             banner()
         
@@ -523,7 +523,7 @@ class Profile():
         cp("\n\n")
         
         sugg = "-avh --del"
-        if self.sd.devs[dstdev].fstype in ["truecrypt", "vfat"]:
+        if self.sd.devs[dstdev].fstype in ["veracrypt", "vfat"]:
             sugg += " --no-g --no-o"
         option = vinput("Now specify rsync-options. (I suggest \""+sugg+"\"). See rsync --help for more details.\n"+
                         "(Hint: you can switch to another terminal using Alt+F2)", None, "33")
@@ -915,7 +915,7 @@ if __name__ == '__main__': main()
  - on init, if a ProfileStore is loaded from file, containing several
    Profiles, only the matching one(s) are shown. By matching I mean,
    the used UUIDs (or labels, if UUIDs are not available, which is the
-   case for truecrypt-volumes) in all steps of a profile are compared
+   case for veracrypt-volumes) in all steps of a profile are compared
    to the currently existing UUIDs from Storage.
 
 '''

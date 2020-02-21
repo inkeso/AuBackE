@@ -4,3 +4,6 @@ BUILD
 release
 external
 tcz
+qemu_drives.7z
+testdrive.qc2
+backupdrive.qc2
