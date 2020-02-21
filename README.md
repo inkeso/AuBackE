@@ -1,8 +1,10 @@
 # AuBackE - Autarkic Backup External
 
+A small bootable backup-tool based on rsync
+
 ## Ingredients
 
-*See build.sh* 
+**See [build.sh](build.sh)**
 
 *Base:* [TinyCore Linux](http://www.tinycorelinux.net)
 
@@ -41,13 +43,11 @@ I don't know why. So... no veracrypt at the moment.)
 
 ## Create ramdisk
 
-For building the modified tinycore-image, edit & execute build.sh
-If you have 7z you can `./build.sh release` which will recompress the
-ramdisk, squeezing out a few bytes
+For building the modified tinycore-image, edit & execute `build.sh`
 
 A BUILD-dir containing all needed files is created:
 
-- aubacore.gz (initial ramdisk)
+- aubacore_$ARCH.gz (ramdisk)
 - vmlinuz (kernel)
 
 ## Prepare external drive
